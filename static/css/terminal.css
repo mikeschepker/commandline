@@ -1,0 +1,115 @@
+:root {
+  --bg: #000;
+  --fg: #c9fcd5;
+  --fg-dim: #6fae7c;
+  --accent: #6fffb0;
+  --link: #7fd7ff;
+  --error: #ff6b6b;
+  --font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Progressive enhancement: fallback content is real, semantic HTML for no-JS/crawlers.
+   Once terminal.js boots it adds .js and takes over the rendering. */
+.no-js #terminal { display: none; }
+.js #content-fallback { display: none; }
+
+#content-fallback {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+#content-fallback a { color: var(--link); }
+#content-fallback img { max-width: 100%; height: auto; }
+
+#terminal {
+  min-height: 100vh;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.term-output {
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex: 1;
+}
+
+.term-output .line { margin: 0 0 2px; }
+.term-output .line.gap { margin-bottom: 14px; }
+.term-output .banner { color: var(--accent); }
+.term-output .dim { color: var(--fg-dim); }
+.term-output .error { color: var(--error); }
+.term-output .cmd-echo::before { content: "> "; color: var(--fg-dim); }
+.term-output .cmd-echo { color: #fff; }
+
+.term-output a {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--link);
+}
+.term-output a:hover,
+.term-output a:focus {
+  color: var(--accent);
+  border-bottom-style: solid;
+}
+
+.term-post-title { color: var(--accent); margin: 0 0 4px; font-size: 1.1em; }
+.term-post-date { color: var(--fg-dim); display: block; margin-bottom: 6px; }
+.term-post-categories { list-style: none; padding: 0; margin: 0 0 10px; color: var(--fg-dim); }
+.term-post-categories li { display: inline; }
+.term-post-categories li::after { content: ", "; }
+.term-post-categories li:last-child::after { content: ""; }
+.term-post-content { margin-top: 10px; }
+.term-post-content img { max-width: 100%; height: auto; }
+.term-post-content a { color: var(--link); }
+
+#term-inputline {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 10px;
+  position: sticky;
+  bottom: 0;
+  background: var(--bg);
+  padding-top: 6px;
+}
+
+#term-prompt {
+  color: var(--accent);
+  white-space: nowrap;
+  cursor: text;
+}
+
+#term-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--fg);
+  font: inherit;
+  caret-color: var(--accent);
+}
+
+::selection { background: var(--fg-dim); color: #000; }
+
+@media (max-width: 480px) {
+  body { font-size: 14px; }
+  #terminal { padding: 1rem 0.85rem 2rem; }
+}

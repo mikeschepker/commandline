@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="term-fallback-list">
+  <h1>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}</h1>
+  {{ $posts := where .Site.RegularPages "Type" "post" }}
+  {{ range first 10 $posts.ByDate.Reverse }}
+  <article class="h-entry">
+    <h2 class="p-name"><a class="u-url" href="{{ .Permalink }}">{{ .Title }}</a></h2>
+    <time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02" }}</time>
+    <div class="p-summary">{{ .Summary }}</div>
+  </article>
+  {{ end }}
+</div>
+{{ end }}

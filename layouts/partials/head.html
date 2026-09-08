@@ -1,0 +1,17 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} :: {{ .Site.Title }}{{ end }}</title>
+{{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+<link rel="canonical" href="{{ .Permalink }}">
+{{ range .AlternativeOutputFormats }}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}">
+{{ end }}
+<link rel="stylesheet" href="{{ "css/terminal.css" | absURL }}">
+
+{{/* IndieWeb / micro.blog endpoints, kept from standard theme conventions */}}
+{{ with .Site.Params.micropub }}<link rel="micropub" href="{{ . }}">{{ end }}
+{{ with .Site.Params.webmention }}<link rel="webmention" href="{{ . }}">{{ end }}
+{{ with .Site.Params.authorTwitter }}<link rel="me" href="https://twitter.com/{{ . }}">{{ end }}
+{{ with .Site.Params.authorGithub }}<link rel="me" href="https://github.com/{{ . }}">{{ end }}
+
+{{ range .Site.Params.plugins_css }}<link rel="stylesheet" href="{{ . }}">{{ end }}

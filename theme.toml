@@ -1,0 +1,12 @@
+name = "Commandline"
+license = "MIT"
+licenselink = "https://github.com/mikeschepker/commandline/blob/main/LICENSE"
+description = "An interactive, all-black terminal for a micro.blog site. Every page is a typed command."
+homepage = "https://github.com/mikeschepker/commandline"
+tags = ["blog", "dark", "minimal", "terminal", "interactive", "javascript"]
+features = ["blog"]
+min_version = 0.91
+
+[author]
+  name = "Mike Schepker"
+  homepage = "https://github.com/mikeschepker"

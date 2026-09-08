@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="{{ or .Site.LanguageCode `en` }}" class="no-js">
+<head>
+<script>document.documentElement.classList.replace('no-js','js')</script>
+{{ partial "head.html" . }}
+</head>
+<body>
+
+{{ partialCached "data-index.html" . "global-post-index" }}
+
+{{/*
+  Real, crawlable, no-JS-safe HTML for this page. terminal.js hides this once it boots and
+  re-renders the same content inside the terminal buffer instead — progressive enhancement,
+  not a second copy of the data.
+*/}}
+<div id="content-fallback" data-kind="{{ .Kind }}" data-permalink="{{ .Permalink }}">
+{{ block "main" . }}{{ end }}
+</div>
+
+<div id="terminal">
+  <div id="term-output" class="term-output" role="log" aria-live="polite"></div>
+  <div id="term-inputline">
+    <label for="term-input" id="term-prompt">{{ .Site.Params.promptLabel | default "guest" }}:~$</label>
+    <input id="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal command input">
+  </div>
+</div>
+
+<script src="{{ "js/terminal.js" | absURL }}"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{{/*
+  Builds one JSON "data island" of recent posts, embedded on every page via baseof.html.
+  This is what powers `list`, `list <category>`, `next`, `search`, and `photos` client-side —
+  no site-level Hugo Output Format config needed, just a plain jsonify in a normal template.
+  Wrapped in partialCached by the caller so it's computed once per build, not once per page.
+*/}}
+{{ $max := .Site.Params.maxIndexPosts | default 300 }}
+{{ $posts := where .Site.RegularPages "Type" "post" }}
+{{ $posts = $posts.ByDate.Reverse }}
+{{ $posts = $posts | first $max }}
+{{ $items := slice }}
+{{ range $posts }}
+  {{ $images := .Params.images | default (.Params.photos | default (slice)) }}
+  {{ $items = $items | append (dict
+      "title" .Title
+      "url" .RelPermalink
+      "date" (.Date.Format "2006-01-02")
+      "categories" (.Params.categories | default (slice))
+      "summary" (.Summary | plainify | truncate 220)
+      "images" $images
+  ) }}
+{{ end }}
+<script id="sc-index" type="application/json">{{ (dict "site" .Site.Title "posts" $items) | jsonify | safeJS }}</script>
