@@ -61,7 +61,7 @@
     lastRendered: [], // the slice of items currently on screen, for `open N`
     history: [],
     historyPos: 0,
-    eggIndex: {}, // egg key -> next quote index
+    eggQueues: {}, // egg key -> shuffled quotes not yet shown this cycle
   };
 
   var pageCache = new Map(); // url -> parsed page data
@@ -241,9 +241,27 @@
   }
 
   function triggerEasterEgg(egg) {
-    var i = state.eggIndex[egg.key] || 0;
-    addLine('"' + egg.quotes[i % egg.quotes.length] + '"', "egg");
-    state.eggIndex[egg.key] = i + 1;
+    addLine('"' + nextEggQuote(egg) + '"', "egg");
+  }
+
+  function nextEggQuote(egg) {
+    var queue = state.eggQueues[egg.key];
+    if (!queue || !queue.length) {
+      queue = shuffled(egg.quotes);
+      state.eggQueues[egg.key] = queue;
+    }
+    return queue.shift();
+  }
+
+  function shuffled(arr) {
+    var copy = arr.slice();
+    for (var i = copy.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = copy[i];
+      copy[i] = copy[j];
+      copy[j] = tmp;
+    }
+    return copy;
   }
 
   function printHelp() {
