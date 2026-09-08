@@ -3,10 +3,7 @@
 
   var PAGE_SIZE = 10;
   var ABOUT_PATH = "/about/"; // convention: create your About page at this path
-  var MONTH_NAMES = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
+  var ARCHIVE_PATH = "/archive/"; // micro.blog's own route; see layouts/list.archivehtml.html
 
   // Easter eggs: typing the full phrase triggers a response. "quotes" eggs cycle through
   // one quote at a time (shuffled); "fixed" eggs always print the same line; "sequence"
@@ -68,7 +65,7 @@
   }
 
   var state = {
-    query: null, // { items: [...], offset: 0, kind: 'list'|'search'|'photos' }
+    query: null, // { items: [...], offset: 0, kind: 'list'|'search'|'photos'|'archive' }
     lastRendered: [], // the slice of items currently on screen, for `open N`
     history: [],
     historyPos: 0,
@@ -137,7 +134,12 @@
     var kind = fallback.dataset.kind;
     printBanner();
 
-    if (kind === "home") {
+    if (location.pathname === ARCHIVE_PATH) {
+      // /archive/ is still Kind "home" under the hood (see layouts/list.archivehtml.html) —
+      // check the real path first so it doesn't fall into the plain "home" branch below.
+      addGap();
+      cmdArchive(false);
+    } else if (kind === "home") {
       if (location.hash) {
         route(location.pathname, location.hash, false);
       } else {
@@ -223,7 +225,7 @@
         cmdList(rest);
         break;
       case "archive":
-        cmdArchive(rest);
+        cmdArchive();
         break;
       case "next":
         cmdNext();
@@ -298,9 +300,7 @@
       ["help", "show this list"],
       ["list", "show the last 10 posts"],
       ["list <category>", "show the last 10 posts in a category"],
-      ["archive", "browse posts by year and month"],
-      ["archive <year>", "show the months posted in that year"],
-      ["archive <year>-<month>", "show posts from that month"],
+      ["archive", "browse all posts by year, 10 per page"],
       ["next", "show the next 10 results"],
       ["open <n>", "open item n from the results above"],
       ["about", "go to the about page"],
@@ -394,102 +394,18 @@
     return parts[parts.length - 1] || clean;
   }
 
-  // ---------- archive (year / month tree) ----------
+  // ---------- archive (real /archive/ page, all posts grouped by year) ----------
 
-  function buildArchiveTree() {
-    var tree = {}; // year -> month -> count
-    indexData.posts.forEach(function (p) {
-      var year = p.date.slice(0, 4);
-      var month = p.date.slice(5, 7);
-      tree[year] = tree[year] || {};
-      tree[year][month] = (tree[year][month] || 0) + 1;
-    });
-    return tree;
-  }
-
-  function cmdArchive(arg, pushHistory) {
-    arg = (arg || "").trim();
-    if (!arg) {
-      renderArchiveYears(pushHistory);
-      return;
-    }
-    var m = arg.match(/^(\d{4})(?:-(\d{2}))?$/);
-    if (!m) {
-      addLine("Usage: archive, archive <year>, or archive <year>-<month>", "error");
-      return;
-    }
-    if (!m[2]) {
-      renderArchiveMonths(m[1], pushHistory);
-    } else {
-      renderArchiveMonth(m[1], m[2], pushHistory);
-    }
-  }
-
-  function renderArchiveYears(pushHistory) {
-    var tree = buildArchiveTree();
-    var years = Object.keys(tree).sort().reverse();
-    if (!years.length) {
+  function cmdArchive(pushHistory) {
+    var items = indexData.posts;
+    if (!items.length) {
       addLine("No posts yet.", "dim");
       return;
     }
-
-    if (pushHistory !== false) pushVirtualRoute("#archive");
-
-    addLine("Archive:");
-    years.forEach(function (year) {
-      var count = Object.keys(tree[year]).reduce(function (sum, mo) {
-        return sum + tree[year][mo];
-      }, 0);
-      var lineEl = el("span", {});
-      lineEl.appendChild(link(year, "#archive/" + year, makeArchiveOpener(year)));
-      lineEl.appendChild(document.createTextNode("  (" + count + ")"));
-      addLine(lineEl);
-    });
-    addLine("Type archive <year> to see its months.", "dim");
-  }
-
-  function renderArchiveMonths(year, pushHistory) {
-    var tree = buildArchiveTree();
-    var months = tree[year] ? Object.keys(tree[year]).sort().reverse() : [];
-    if (!months.length) {
-      addLine("No posts in " + year + ".", "dim");
-      return;
-    }
-
-    if (pushHistory !== false) pushVirtualRoute("#archive/" + year);
-
-    addLine(year + ":");
-    months.forEach(function (month) {
-      var key = year + "-" + month;
-      var label = MONTH_NAMES[parseInt(month, 10) - 1] + "  (" + tree[year][month] + ")";
-      var lineEl = el("span", {});
-      lineEl.appendChild(document.createTextNode("  "));
-      lineEl.appendChild(link(label, "#archive/" + key, makeArchiveOpener(key)));
-      addLine(lineEl);
-    });
-    addLine("Type archive " + year + "-" + months[0] + " to view a month's posts.", "dim");
-  }
-
-  function renderArchiveMonth(year, month, pushHistory) {
-    var key = year + "-" + month;
-    var items = indexData.posts.filter(function (p) {
-      return p.date.slice(0, 7) === key;
-    });
-
-    if (!items.length) {
-      addLine("No posts in " + key + ".", "dim");
-      return;
-    }
-
-    if (pushHistory !== false) pushVirtualRoute("#archive/" + key);
-    state.query = { items: items, offset: 0, kind: "list" };
+    if (pushHistory !== false) history.pushState(null, "", ARCHIVE_PATH);
+    addLine("Archive:", "banner");
+    state.query = { items: items, offset: 0, kind: "archive" };
     renderResultsPage();
-  }
-
-  function makeArchiveOpener(arg) {
-    return function () {
-      cmdArchive(arg);
-    };
   }
 
   function cmdNext() {
@@ -510,9 +426,17 @@
     var q = state.query;
     var slice = q.items.slice(q.offset, q.offset + PAGE_SIZE);
     state.lastRendered = slice;
+    var lastYear = null;
 
     slice.forEach(function (item, i) {
       var n = i + 1;
+      if (q.kind === "archive") {
+        var year = item.date.slice(0, 4);
+        if (year !== lastYear) {
+          addLine(year + ":");
+          lastYear = year;
+        }
+      }
       var lineEl = el("span", {});
       var label =
         q.kind === "photos"
@@ -647,12 +571,8 @@
       cmdList(decodeURIComponent(hash.slice("#list/".length)), pushHistory);
       return;
     }
-    if (hash === "#archive") {
-      cmdArchive("", pushHistory);
-      return;
-    }
-    if (hash && hash.indexOf("#archive/") === 0) {
-      cmdArchive(decodeURIComponent(hash.slice("#archive/".length)), pushHistory);
+    if (pathname === ARCHIVE_PATH) {
+      cmdArchive(pushHistory);
       return;
     }
     if (pathname && pathname !== "/") {

@@ -1,0 +1,30 @@
+{{/*
+  micro.blog generates /archive/ itself, as an alternate "ArchiveHTML" output format of the
+  home page (Kind is still "home" -- see microdotblog/theme-blank's own
+  layouts/list.archivehtml.html, which this overrides). It's not a Hugo section or content
+  page, so there's no matching file under content/. This renders through our own
+  _default/baseof.html like every other page, giving real, crawlable, no-JS-safe HTML.
+  terminal.js hides it once it boots and re-renders the same posts (already embedded in the
+  sc-index data island) grouped and paginated the same way -- see cmdArchive.
+*/}}
+{{ define "main" }}
+<div class="term-archive">
+  <h1>Archive</h1>
+  {{ $posts := where .Site.RegularPages "Type" "post" }}
+  {{ if eq (len $posts) 0 }}
+  <p>No posts yet.</p>
+  {{ else }}
+  {{ range $posts.GroupByDate "2006" }}
+  <h2 class="term-archive-year">{{ .Key }}</h2>
+  <ul class="term-archive-list">
+    {{ range .Pages }}
+    <li class="h-entry">
+      <a class="u-url p-name" href="{{ .Permalink }}">{{ .Title }}</a>
+      <time class="dt-published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "Jan 2" }}</time>
+    </li>
+    {{ end }}
+  </ul>
+  {{ end }}
+  {{ end }}
+</div>
+{{ end }}

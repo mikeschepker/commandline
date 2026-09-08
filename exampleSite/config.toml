@@ -8,3 +8,16 @@ theme = "commandline"
 
 [taxonomies]
   category = "categories"
+
+# micro.blog registers this output format platform-wide so every blog gets a /archive/
+# page; it's declared here only so `hugo server` reproduces that for local preview.
+[outputFormats]
+  [outputFormats.ArchiveHTML]
+    mediaType = "text/html"
+    path = "archive"
+    baseName = "index"
+    isHTML = true
+    notAlternative = true
+
+[outputs]
+  home = ["HTML", "RSS", "ArchiveHTML"]

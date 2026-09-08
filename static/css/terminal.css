@@ -195,6 +195,20 @@ body {
 
 .term-post-content img { max-width: 100%; height: auto; border: 1px solid var(--fg-dim); border-radius: 4px; }
 
+.term-archive-year {
+  font-size: 1.05em;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 1.5em 0 0.4em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--fg-dim);
+}
+.term-archive-year:first-of-type { margin-top: 0.75em; }
+.term-archive-list { list-style: none; margin: 0 0 1em; padding: 0; }
+.term-archive-list li { margin-bottom: 0.4em; }
+.term-archive-list time { color: var(--fg-dim); margin-left: 0.6em; }
+
 #term-inputline {
   display: flex;
   align-items: center;
