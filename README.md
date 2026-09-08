@@ -2,8 +2,9 @@
 
 A [micro.blog](https://micro.blog) theme that presents your entire site as an
 all-black interactive terminal. There's no nav bar — every page is reached by
-typing a command at the prompt: `help`, `list`, `list <category>`, `next`,
-`open <n>`, `about`, `photos`, `search <query>`, `home`, `clear`.
+typing a command at the prompt: `help`, `list`, `list <category>`, `archive`,
+`archive <year>`, `archive <year>-<month>`, `next`, `open <n>`, `about`,
+`photos`, `search <query>`, `home`, `clear`.
 
 ## How it works
 
@@ -22,9 +23,11 @@ in-page navigation:
   fallback that terminal.js hides once it boots). Navigating to one of them
   from the terminal does a single `fetch()` of that page's real HTML and
   renders it inline with `history.pushState`, instead of a full reload.
-- `list`, `search`, and `photos` are virtual views with no real page behind
-  them — they're addressed with a URL hash (`#list/travel`, `#search/foo`,
-  `#photos`) so they're still bookmarkable and refresh-safe.
+- `list`, `search`, `photos`, and `archive` are virtual views with no real
+  page behind them — they're addressed with a URL hash (`#list/travel`,
+  `#search/foo`, `#photos`, `#archive/2026-01`) so they're still bookmarkable
+  and refresh-safe. `archive` drills down year → month → posts, each level
+  computed on the fly from the same post index.
 
 ## One convention to know about
 

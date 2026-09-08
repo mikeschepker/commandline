@@ -3,6 +3,10 @@
 
   var PAGE_SIZE = 10;
   var ABOUT_PATH = "/about/"; // convention: create your About page at this path
+  var MONTH_NAMES = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
 
   // Easter eggs: typing the full phrase cycles through one quote at a time.
   var EASTER_EGGS = {
@@ -207,6 +211,9 @@
       case "list":
         cmdList(rest);
         break;
+      case "archive":
+        cmdArchive(rest);
+        break;
       case "next":
         cmdNext();
         break;
@@ -245,6 +252,9 @@
       ["help", "show this list"],
       ["list", "show the last 10 posts"],
       ["list <category>", "show the last 10 posts in a category"],
+      ["archive", "browse posts by year and month"],
+      ["archive <year>", "show the months posted in that year"],
+      ["archive <year>-<month>", "show posts from that month"],
       ["next", "show the next 10 results"],
       ["open <n>", "open item n from the results above"],
       ["about", "go to the about page"],
@@ -336,6 +346,104 @@
     var clean = u.split("?")[0].split("#")[0];
     var parts = clean.split("/");
     return parts[parts.length - 1] || clean;
+  }
+
+  // ---------- archive (year / month tree) ----------
+
+  function buildArchiveTree() {
+    var tree = {}; // year -> month -> count
+    indexData.posts.forEach(function (p) {
+      var year = p.date.slice(0, 4);
+      var month = p.date.slice(5, 7);
+      tree[year] = tree[year] || {};
+      tree[year][month] = (tree[year][month] || 0) + 1;
+    });
+    return tree;
+  }
+
+  function cmdArchive(arg, pushHistory) {
+    arg = (arg || "").trim();
+    if (!arg) {
+      renderArchiveYears(pushHistory);
+      return;
+    }
+    var m = arg.match(/^(\d{4})(?:-(\d{2}))?$/);
+    if (!m) {
+      addLine("Usage: archive, archive <year>, or archive <year>-<month>", "error");
+      return;
+    }
+    if (!m[2]) {
+      renderArchiveMonths(m[1], pushHistory);
+    } else {
+      renderArchiveMonth(m[1], m[2], pushHistory);
+    }
+  }
+
+  function renderArchiveYears(pushHistory) {
+    var tree = buildArchiveTree();
+    var years = Object.keys(tree).sort().reverse();
+    if (!years.length) {
+      addLine("No posts yet.", "dim");
+      return;
+    }
+
+    if (pushHistory !== false) pushVirtualRoute("#archive");
+
+    addLine("Archive:");
+    years.forEach(function (year) {
+      var count = Object.keys(tree[year]).reduce(function (sum, mo) {
+        return sum + tree[year][mo];
+      }, 0);
+      var lineEl = el("span", {});
+      lineEl.appendChild(link(year, "#archive/" + year, makeArchiveOpener(year)));
+      lineEl.appendChild(document.createTextNode("  (" + count + ")"));
+      addLine(lineEl);
+    });
+    addLine("Type archive <year> to see its months.", "dim");
+  }
+
+  function renderArchiveMonths(year, pushHistory) {
+    var tree = buildArchiveTree();
+    var months = tree[year] ? Object.keys(tree[year]).sort().reverse() : [];
+    if (!months.length) {
+      addLine("No posts in " + year + ".", "dim");
+      return;
+    }
+
+    if (pushHistory !== false) pushVirtualRoute("#archive/" + year);
+
+    addLine(year + ":");
+    months.forEach(function (month) {
+      var key = year + "-" + month;
+      var label = MONTH_NAMES[parseInt(month, 10) - 1] + "  (" + tree[year][month] + ")";
+      var lineEl = el("span", {});
+      lineEl.appendChild(document.createTextNode("  "));
+      lineEl.appendChild(link(label, "#archive/" + key, makeArchiveOpener(key)));
+      addLine(lineEl);
+    });
+    addLine("Type archive " + year + "-" + months[0] + " to view a month's posts.", "dim");
+  }
+
+  function renderArchiveMonth(year, month, pushHistory) {
+    var key = year + "-" + month;
+    var items = indexData.posts.filter(function (p) {
+      return p.date.slice(0, 7) === key;
+    });
+
+    if (!items.length) {
+      addLine("No posts in " + key + ".", "dim");
+      return;
+    }
+
+    if (pushHistory !== false) pushVirtualRoute("#archive/" + key);
+    state.query = { items: items, offset: 0, kind: "list" };
+    renderResultsPage();
+  }
+
+  function makeArchiveOpener(arg) {
+    return function () {
+      cmdArchive(arg);
+    };
   }
 
   function cmdNext() {
@@ -491,6 +599,14 @@
     }
     if (hash && hash.indexOf("#list/") === 0) {
       cmdList(decodeURIComponent(hash.slice("#list/".length)), pushHistory);
+      return;
+    }
+    if (hash === "#archive") {
+      cmdArchive("", pushHistory);
+      return;
+    }
+    if (hash && hash.indexOf("#archive/") === 0) {
+      cmdArchive(decodeURIComponent(hash.slice("#archive/".length)), pushHistory);
       return;
     }
     if (pathname && pathname !== "/") {
