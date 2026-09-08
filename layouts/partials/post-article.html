@@ -1,0 +1,18 @@
+<article class="h-entry term-post" data-title="{{ .Title }}">
+  {{ if .Title }}<h1 class="p-name term-post-title">{{ .Title }}</h1>{{ end }}
+  {{ if not .Date.IsZero }}
+  <time class="dt-published term-post-date" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02" }}</time>
+  {{ end }}
+  {{ with .Params.categories }}
+  <ul class="term-post-categories">
+    {{ range . }}<li>{{ . }}</li>{{ end }}
+  </ul>
+  {{ end }}
+  <div class="e-content term-post-content">
+    {{ .Content }}
+  </div>
+</article>
+
+{{ if .Site.Params.include_conversation }}
+<script type="text/javascript" src="https://micro.blog/conversation.js?url={{ .Permalink }}"></script>
+{{ end }}

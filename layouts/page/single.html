@@ -1,0 +1,6 @@
+{{/*
+  micro.blog's built-in Blank theme ships its own layouts/page/single.html for standalone
+  pages (About, etc). Since that's more specific than our layouts/_default/single.html,
+  Hugo's template lookup picks Blank's version over ours unless we override it here too.
+*/}}
+{{ define "main" }}{{ partial "post-article.html" . }}{{ end }}
