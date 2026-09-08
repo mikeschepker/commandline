@@ -2,7 +2,6 @@
 	"params": {
 		"contentTypeName": "post",
 		"postsPerPage": 10,
-		"maxIndexPosts": 300,
-		"promptLabel": "guest@blog"
+		"maxIndexPosts": 300
 	}
 }

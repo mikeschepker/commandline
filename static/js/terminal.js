@@ -4,6 +4,40 @@
   var PAGE_SIZE = 10;
   var ABOUT_PATH = "/about/"; // convention: create your About page at this path
 
+  // Easter eggs: typing the full phrase cycles through one quote at a time.
+  var EASTER_EGGS = {
+    "global thermonuclear war": {
+      key: "wargames",
+      quotes: [
+        "Greetings, Professor Falken.",
+        "Shall we play a game?",
+        "Love to. How about Global Thermonuclear War?",
+        "Wouldn't you prefer a good game of chess?",
+        "A strange game. The only winning move is not to play.",
+        "How about a nice game of chess?",
+        "What is the primary goal?",
+        "You should know, Professor. You programmed me.",
+        "Is this a game, or is it real?",
+        "Shall we play a game of chess instead?",
+      ],
+    },
+    "hack the planet": {
+      key: "hackers",
+      quotes: [
+        "Hack the planet!",
+        "Mess with the best, die like the rest.",
+        "There's no right and wrong. There's only fun and boring.",
+        "This is our world now — the world of the electron and the switch.",
+        "God, I love this system!",
+        "RISC architecture is gonna change everything.",
+        "Never send a boy to do a woman's job.",
+        "You're in a database, stupid!",
+        "My Nikes are untied!",
+        "Welcome to the world of hurt, Zero Cool.",
+      ],
+    },
+  };
+
   var output = document.getElementById("term-output");
   var input = document.getElementById("term-input");
   var fallback = document.getElementById("content-fallback");
@@ -23,6 +57,7 @@
     lastRendered: [], // the slice of items currently on screen, for `open N`
     history: [],
     historyPos: 0,
+    eggIndex: {}, // egg key -> next quote index
   };
 
   var pageCache = new Map(); // url -> parsed page data
@@ -155,6 +190,12 @@
     var trimmed = raw.trim();
     if (trimmed === "") return;
 
+    var egg = EASTER_EGGS[trimmed.toLowerCase()];
+    if (egg) {
+      triggerEasterEgg(egg);
+      return;
+    }
+
     var spaceIdx = trimmed.indexOf(" ");
     var cmd = (spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx)).toLowerCase();
     var rest = spaceIdx === -1 ? "" : trimmed.slice(spaceIdx + 1).trim();
@@ -190,6 +231,12 @@
       default:
         addLine('Unknown command "' + cmd + '". Type help for a list of commands.', "error");
     }
+  }
+
+  function triggerEasterEgg(egg) {
+    var i = state.eggIndex[egg.key] || 0;
+    addLine('"' + egg.quotes[i % egg.quotes.length] + '"', "egg");
+    state.eggIndex[egg.key] = i + 1;
   }
 
   function printHelp() {

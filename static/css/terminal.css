@@ -58,6 +58,7 @@ body {
 .term-output .error { color: var(--error); }
 .term-output .cmd-echo::before { content: "> "; color: var(--fg-dim); }
 .term-output .cmd-echo { color: #fff; }
+.term-output .egg { color: var(--accent); font-style: italic; }
 
 .term-output a {
   color: var(--link);

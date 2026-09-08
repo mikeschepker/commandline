@@ -17,10 +17,19 @@
 {{ block "main" . }}{{ end }}
 </div>
 
+{{ $promptLabel := .Site.Params.promptLabel }}
+{{ if not $promptLabel }}
+  {{ $host := .Site.BaseURL }}
+  {{ $host = strings.TrimSuffix "/" $host }}
+  {{ $host = strings.TrimPrefix "https://" $host }}
+  {{ $host = strings.TrimPrefix "http://" $host }}
+  {{ $promptLabel = printf "guest@%s" $host }}
+{{ end }}
+
 <div id="terminal">
   <div id="term-output" class="term-output" role="log" aria-live="polite"></div>
   <div id="term-inputline">
-    <label for="term-input" id="term-prompt">{{ .Site.Params.promptLabel | default "guest" }}:~$</label>
+    <label for="term-input" id="term-prompt">{{ $promptLabel }}:~$</label>
     <input id="term-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal command input">
   </div>
 </div>

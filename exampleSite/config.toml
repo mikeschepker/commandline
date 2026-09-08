@@ -4,7 +4,6 @@ title = "Test Signal"
 theme = "commandline"
 
 [params]
-  promptLabel = "guest@test-signal"
   description = "A test blog for the Commandline terminal theme."
 
 [taxonomies]
