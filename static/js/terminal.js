@@ -8,9 +8,12 @@
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
 
-  // Easter eggs: typing the full phrase cycles through one quote at a time.
+  // Easter eggs: typing the full phrase triggers a response. "quotes" eggs cycle through
+  // one quote at a time (shuffled); "fixed" eggs always print the same line; "sequence"
+  // eggs run bespoke scripted output (see runRebootSequence).
   var EASTER_EGGS = {
     "global thermonuclear war": {
+      type: "quotes",
       key: "wargames",
       quotes: [
         "Greetings, Professor Falken.",
@@ -26,6 +29,7 @@
       ],
     },
     "hack the planet": {
+      type: "quotes",
       key: "hackers",
       quotes: [
         "Hack the planet!",
@@ -39,6 +43,13 @@
         "My Nikes are untied!",
         "Welcome to the world of hurt, Zero Cool.",
       ],
+    },
+    "swordfish": {
+      type: "fixed",
+      line: "Really? That movie sucked.",
+    },
+    "reboot park systems": {
+      type: "sequence",
     },
   };
 
@@ -241,7 +252,24 @@
   }
 
   function triggerEasterEgg(egg) {
-    addLine('"' + nextEggQuote(egg) + '"', "egg");
+    if (egg.type === "fixed") {
+      addLine(egg.line, "egg");
+    } else if (egg.type === "sequence") {
+      runRebootSequence();
+    } else {
+      addLine('"' + nextEggQuote(egg) + '"', "egg");
+    }
+  }
+
+  function runRebootSequence() {
+    var line = addLine("Hold on to your butts", "egg");
+    var cursor = el("span", { class: "blink-cursor", text: "█" });
+    line.appendChild(cursor);
+    scrollToBottom();
+    setTimeout(function () {
+      cursor.remove();
+      addLine("\"Ah Ah Ah, you didn't say the magic word.\"", "egg");
+    }, 1500);
   }
 
   function nextEggQuote(egg) {

@@ -60,6 +60,16 @@ body {
 .term-output .cmd-echo { color: #fff; }
 .term-output .egg { color: var(--accent); font-style: italic; }
 
+.blink-cursor {
+  display: inline-block;
+  margin-left: 0.2em;
+  font-style: normal;
+  animation: term-blink 1s steps(1, start) infinite;
+}
+@keyframes term-blink {
+  50% { opacity: 0; }
+}
+
 .term-output a {
   color: var(--link);
   text-decoration: none;
