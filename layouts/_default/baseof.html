@@ -17,14 +17,18 @@
 {{ block "main" . }}{{ end }}
 </div>
 
-{{ $promptLabel := .Site.Params.promptLabel }}
-{{ if not $promptLabel }}
-  {{ $host := .Site.BaseURL }}
-  {{ $host = strings.TrimSuffix "/" $host }}
-  {{ $host = strings.TrimPrefix "https://" $host }}
-  {{ $host = strings.TrimPrefix "http://" $host }}
-  {{ $promptLabel = printf "guest@%s" $host }}
-{{ end }}
+{{/*
+  Always derived from the site's own domain -- deliberately not overridable via a site
+  param. micro.blog copies a custom theme's config.json params into the blog's own
+  persisted settings on import, and that copy doesn't get re-synced by later template/
+  static-file pulls, so a param-based override here can get permanently stuck on an old
+  value. Computing it fresh on every build avoids that entirely.
+*/}}
+{{ $host := .Site.BaseURL }}
+{{ $host = strings.TrimSuffix "/" $host }}
+{{ $host = strings.TrimPrefix "https://" $host }}
+{{ $host = strings.TrimPrefix "http://" $host }}
+{{ $promptLabel := printf "guest@%s" $host }}
 
 <div id="terminal">
   <div id="term-output" class="term-output" role="log" aria-live="polite"></div>
