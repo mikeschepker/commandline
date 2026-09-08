@@ -2,8 +2,9 @@
 
 A [micro.blog](https://micro.blog) theme that presents your entire site as an
 all-black interactive terminal. There's no nav bar — every page is reached by
-typing a command at the prompt: `help`, `list`, `list <category>`, `archive`,
-`next`, `open <n>`, `about`, `photos`, `search <query>`, `home`, `clear`.
+typing a command at the prompt: `help`, `list`, `list <category>`,
+`categories`, `archive`, `next`, `open <n>`, `about`, `photos`,
+`search <query>`, `home`, `clear`.
 
 ## How it works
 
@@ -14,8 +15,8 @@ in-page navigation:
 - Every page embeds a small JSON "data island" (`<script id="sc-index">`)
   listing your recent posts — title, date, categories, summary, and any
   attached image URLs. That's what powers `list`, `list <category>`,
-  `search`, and `photos`, entirely client-side, with zero extra network
-  requests on first load.
+  `categories`, `search`, and `photos`, entirely client-side, with zero
+  extra network requests on first load.
 - Individual posts and the About page are still real, normal Hugo pages
   (crawlable, bookmarkable, and fully readable with JavaScript off — see
   `layouts/_default/single.html` and `layouts/page/single.html`, which
@@ -33,9 +34,10 @@ in-page navigation:
   posts from the `sc-index` data island already on the page — no extra
   fetch — grouped the same way and paginated at 10 per page with `next`,
   exactly like `list`.
-- `list`, `search`, and `photos` are virtual views with no real page behind
-  them — they're addressed with a URL hash (`#list/travel`, `#search/foo`,
-  `#photos`) so they're still bookmarkable and refresh-safe.
+- `list`, `categories`, `search`, and `photos` are virtual views with no
+  real page behind them — they're addressed with a URL hash (`#list/travel`,
+  `#categories`, `#search/foo`, `#photos`) so they're still bookmarkable and
+  refresh-safe.
 
 ## One convention to know about
 

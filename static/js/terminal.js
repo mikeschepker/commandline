@@ -224,6 +224,9 @@
       case "list":
         cmdList(rest);
         break;
+      case "categories":
+        cmdCategories();
+        break;
       case "archive":
         cmdArchive();
         break;
@@ -300,6 +303,7 @@
       ["help", "show this list"],
       ["list", "show the last 10 posts"],
       ["list <category>", "show the last 10 posts in a category"],
+      ["categories", "show all categories, to list by"],
       ["archive", "browse all posts by year, 10 per page"],
       ["next", "show the next 10 results"],
       ["open <n>", "open item n from the results above"],
@@ -313,7 +317,7 @@
     });
   }
 
-  // ---------- list / search / photos ----------
+  // ---------- list / categories / search / photos ----------
 
   function cmdList(category, pushHistory) {
     var items = indexData.posts;
@@ -340,6 +344,42 @@
     }
     state.query = { items: items, offset: 0, kind: "list" };
     renderResultsPage();
+  }
+
+  function cmdCategories(pushHistory) {
+    var counts = {};
+    indexData.posts.forEach(function (p) {
+      (p.categories || []).forEach(function (c) {
+        if (!c) return;
+        counts[c] = (counts[c] || 0) + 1;
+      });
+    });
+    var names = Object.keys(counts).sort(function (a, b) {
+      return a.localeCompare(b);
+    });
+
+    if (!names.length) {
+      addLine("No categories found.", "dim");
+      return;
+    }
+
+    if (pushHistory !== false) pushVirtualRoute("#categories");
+
+    addLine("Categories:", "banner");
+    names.forEach(function (name) {
+      var lineEl = el("span", {});
+      lineEl.appendChild(document.createTextNode("  "));
+      lineEl.appendChild(link(name, "#list/" + encodeURIComponent(name), makeCategoryOpener(name)));
+      lineEl.appendChild(document.createTextNode("  (" + counts[name] + ")"));
+      addLine(lineEl);
+    });
+    addLine("Type list <category> to browse one.", "dim");
+  }
+
+  function makeCategoryOpener(name) {
+    return function () {
+      cmdList(name);
+    };
   }
 
   function cmdSearch(query, pushHistory) {
@@ -557,6 +597,10 @@
   function route(pathname, hash, pushHistory) {
     if (hash && hash.indexOf("#photos") === 0) {
       cmdPhotos(pushHistory);
+      return;
+    }
+    if (hash && hash.indexOf("#categories") === 0) {
+      cmdCategories(pushHistory);
       return;
     }
     if (hash && hash.indexOf("#search/") === 0) {
