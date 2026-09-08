@@ -185,7 +185,7 @@
         cmdHome();
         break;
       case "clear":
-        output.innerHTML = "";
+        cmdClear();
         break;
       default:
         addLine('Unknown command "' + cmd + '". Type help for a list of commands.', "error");
@@ -354,6 +354,14 @@
     history.pushState(null, "", "/");
     printBanner();
     addLine("Type help for a list of commands.", "dim");
+  }
+
+  function cmdClear() {
+    output.innerHTML = "";
+    printBanner();
+    addLine("Nothing here.");
+    addGap();
+    addLine("Type home to return, or help for commands.", "dim");
   }
 
   function pushVirtualRoute(hash) {
